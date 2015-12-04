@@ -2,17 +2,31 @@
     <arg name="vocabulary_file" default="Data/ORBvoc.txt" />
     <arg name="settings_file" default="Data/Settings.yaml" />
 
+    <arg name="map_frame" default="/ORB_SLAM/World" />
+    <arg name="camera_frame" default="/ORB_SLAM/Camera" />
+
+    <arg name="map_topic" default="/ORB_SLAM/Map" />
+    <arg name="frame_topic" default="/ORB_SLAM/Frame" />
+
     <arg name="show_image_view" default="true" />
     <arg name="show_rviz" default="true" />
 
     <node name="orb_slam" pkg="ORB_SLAM" type="ORB_SLAM" output="screen"
-          args="$(arg vocabulary_file) $(arg settings_file)" />
+          args="$(arg vocabulary_file) $(arg settings_file)">
+        <param name="map_frame" value="$(arg map_frame)" />
+        <param name="camera_frame" value="$(arg camera_frame)" />
+
+        <remap from="ORB_SLAM/Map" to="$(arg map_topic)" />
+        <remap from="ORB_SLAM/Frame" to="$(arg frame_topic)" />
+    </node>
 
     <node if="$(arg show_image_view)" name="orb_image_view" pkg="image_view" type="image_view">
-        <remap from="image" to="/ORB_SLAM/Frame" />
+        <remap from="image" to="$(arg frame_topic)" />
         <param name="autosize" value="true" />
     </node>
 
     <node if="$(arg show_rviz)" name="imu_rviz" pkg="rviz" type="rviz"
-          args="-d $(find ORB_SLAM)/Data/rviz.rviz" />
+          args="-d $(find ORB_SLAM)/Data/rviz.rviz">
+        <remap from="/ORB_SLAM/Map" to="$(arg map_topic)" />
+    </node>
 </launch>
