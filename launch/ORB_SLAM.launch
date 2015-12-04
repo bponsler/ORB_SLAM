@@ -1,0 +1,18 @@
+<launch>
+    <arg name="vocabulary_file" default="Data/ORBvoc.txt" />
+    <arg name="settings_file" default="Data/Settings.yaml" />
+
+    <arg name="show_image_view" default="true" />
+    <arg name="show_rviz" default="true" />
+
+    <node name="orb_slam" pkg="ORB_SLAM" type="ORB_SLAM" output="screen"
+          args="$(arg vocabulary_file) $(arg settings_file)" />
+
+    <node if="$(arg show_image_view)" name="orb_image_view" pkg="image_view" type="image_view">
+        <remap from="image" to="/ORB_SLAM/Frame" />
+        <param name="autosize" value="true" />
+    </node>
+
+    <node if="$(arg show_rviz)" name="imu_rviz" pkg="rviz" type="rviz"
+          args="-d $(find ORB_SLAM)/Data/rviz.rviz" />
+</launch>

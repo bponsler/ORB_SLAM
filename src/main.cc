@@ -47,10 +47,10 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "ORB_SLAM");
     ros::start();
 
-    cout << endl << "ORB-SLAM Copyright (C) 2014 Raul Mur-Artal" << endl <<
-            "This program comes with ABSOLUTELY NO WARRANTY;" << endl  <<
-            "This is free software, and you are welcome to redistribute it" << endl <<
-            "under certain conditions. See LICENSE.txt." << endl;
+    ROS_INFO("ORB-SLAM Copyright (C) 2014 Raul Mur-Artal");
+    ROS_INFO("This program comes with ABSOLUTELY NO WARRANTY;");
+    ROS_INFO("This is free software, and you are welcome to redistribute it");
+    ROS_INFO("under certain conditions. See LICENSE.txt.");
 
     if(argc != 3)
     {
@@ -60,12 +60,23 @@ int main(int argc, char **argv)
     }
 
     // Load Settings and Check
-    string strSettingsFile = ros::package::getPath("ORB_SLAM")+"/"+argv[2];
+    string strSettingsFile;
+    if (argv[2][0] != '/')
+    {
+        // Path relative to the ORB_SLAM package
+        strSettingsFile = ros::package::getPath("ORB_SLAM")+"/"+argv[2];
+    }
+    else {
+        // Absolute path
+        strSettingsFile = argv[2];
+    }
+    ROS_DEBUG_STREAM("Path to settings file: " << strSettingsFile);
 
     cv::FileStorage fsSettings(strSettingsFile.c_str(), cv::FileStorage::READ);
     if(!fsSettings.isOpened())
     {
-        ROS_ERROR("Wrong path to settings. Path must be absolut or relative to ORB_SLAM package directory.");
+        ROS_ERROR("Wrong path to settings. Path must be absolute or relative to ORB_SLAM package directory.");
+        ROS_ERROR_STREAM("Failed to open at: " << strSettingsFile);
         ros::shutdown();
         return 1;
     }
@@ -76,7 +87,7 @@ int main(int argc, char **argv)
     //Load ORB Vocabulary
    /* Old version to load vocabulary using cv::FileStorage
     string strVocFile = ros::package::getPath("ORB_SLAM")+"/"+argv[1];
-    cout << endl << "Loading ORB Vocabulary. This could take a while." << endl;
+    ROS_INFO("Loading ORB Vocabulary. This could take a while.");
     cv::FileStorage fsVoc(strVocFile.c_str(), cv::FileStorage::READ);
     if(!fsVoc.isOpened())
     {
@@ -87,25 +98,37 @@ int main(int argc, char **argv)
     ORB_SLAM::ORBVocabulary Vocabulary;
     Vocabulary.load(fsVoc);
     */
-    
-    // New version to load vocabulary from text file "Data/ORBvoc.txt". 
+
+    // New version to load vocabulary from text file "Data/ORBvoc.txt".
     // If you have an own .yml vocabulary, use the function
     // saveToTextFile in Thirdparty/DBoW2/DBoW2/TemplatedVocabulary.h
-    string strVocFile = ros::package::getPath("ORB_SLAM")+"/"+argv[1];
-    cout << endl << "Loading ORB Vocabulary. This could take a while." << endl;
-    
+    string strVocFile;
+    if (argv[1][0] != '/')
+    {
+        // Path relative to the ORB_SLAM package
+        strVocFile = ros::package::getPath("ORB_SLAM")+"/"+argv[1];
+    }
+    else
+    {
+        // Absolute path
+        strVocFile = argv[1];
+    }
+    ROS_DEBUG_STREAM("Path to vocabulary file: " << strVocFile);
+
+    ROS_INFO("Loading ORB Vocabulary. This could take a while.");
+
     ORB_SLAM::ORBVocabulary Vocabulary;
     bool bVocLoad = Vocabulary.loadFromTextFile(strVocFile);
 
     if(!bVocLoad)
     {
-        cerr << "Wrong path to vocabulary. Path must be absolut or relative to ORB_SLAM package directory." << endl;
-        cerr << "Falied to open at: " << strVocFile << endl;
+        ROS_ERROR("Wrong path to vocabulary. Path must be absolute or relative to ORB_SLAM package directory.");
+        ROS_ERROR_STREAM("Failed to open at: " << strVocFile);
         ros::shutdown();
         return 1;
     }
 
-    cout << "Vocabulary loaded!" << endl << endl;
+    ROS_INFO("Vocabulary loaded!");
 
     //Create KeyFrame Database
     ORB_SLAM::KeyFrameDatabase Database(Vocabulary);
@@ -163,8 +186,9 @@ int main(int argc, char **argv)
     vector<ORB_SLAM::KeyFrame*> vpKFs = World.GetAllKeyFrames();
     sort(vpKFs.begin(),vpKFs.end(),ORB_SLAM::KeyFrame::lId);
 
-    cout << endl << "Saving Keyframe Trajectory to KeyFrameTrajectory.txt" << endl;
     string strFile = ros::package::getPath("ORB_SLAM")+"/"+"KeyFrameTrajectory.txt";
+    ROS_INFO_STREAM("Saving Keyframe Trajectory to " << strFile);
+
     f.open(strFile.c_str());
     f << fixed;
 
