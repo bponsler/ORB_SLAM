@@ -26,9 +26,8 @@ namespace ORB_SLAM
 {
 
 
-MapPublisher::MapPublisher(Map* pMap):mpMap(pMap), mbCameraUpdated(false)
+MapPublisher::MapPublisher(Map* pMap, const std::string &mapFrame):mpMap(pMap), mbCameraUpdated(false)
 {
-    const char* MAP_FRAME_ID = "/ORB_SLAM/World";
     const char* POINTS_NAMESPACE = "MapPoints";
     const char* KEYFRAMES_NAMESPACE = "KeyFrames";
     const char* GRAPH_NAMESPACE = "Graph";
@@ -36,7 +35,7 @@ MapPublisher::MapPublisher(Map* pMap):mpMap(pMap), mbCameraUpdated(false)
 
     //Configure MapPoints
     fPointSize=0.01;
-    mPoints.header.frame_id = MAP_FRAME_ID;
+    mPoints.header.frame_id = mapFrame;
     mPoints.ns = POINTS_NAMESPACE;
     mPoints.id=0;
     mPoints.type = visualization_msgs::Marker::POINTS;
@@ -48,7 +47,7 @@ MapPublisher::MapPublisher(Map* pMap):mpMap(pMap), mbCameraUpdated(false)
 
     //Configure KeyFrames
     fCameraSize=0.04;
-    mKeyFrames.header.frame_id = MAP_FRAME_ID;
+    mKeyFrames.header.frame_id = mapFrame;
     mKeyFrames.ns = KEYFRAMES_NAMESPACE;
     mKeyFrames.id=1;
     mKeyFrames.type = visualization_msgs::Marker::LINE_LIST;
@@ -60,7 +59,7 @@ MapPublisher::MapPublisher(Map* pMap):mpMap(pMap), mbCameraUpdated(false)
     mKeyFrames.color.a = 1.0;
 
     //Configure Covisibility Graph
-    mCovisibilityGraph.header.frame_id = MAP_FRAME_ID;
+    mCovisibilityGraph.header.frame_id = mapFrame;
     mCovisibilityGraph.ns = GRAPH_NAMESPACE;
     mCovisibilityGraph.id=2;
     mCovisibilityGraph.type = visualization_msgs::Marker::LINE_LIST;
@@ -72,7 +71,7 @@ MapPublisher::MapPublisher(Map* pMap):mpMap(pMap), mbCameraUpdated(false)
     mCovisibilityGraph.color.a = 0.3;
 
     //Configure KeyFrames Spanning Tree
-    mMST.header.frame_id = MAP_FRAME_ID;
+    mMST.header.frame_id = mapFrame;
     mMST.ns = GRAPH_NAMESPACE;
     mMST.id=3;
     mMST.type = visualization_msgs::Marker::LINE_LIST;
@@ -84,7 +83,7 @@ MapPublisher::MapPublisher(Map* pMap):mpMap(pMap), mbCameraUpdated(false)
     mMST.color.a = 1.0;
 
     //Configure Current Camera
-    mCurrentCamera.header.frame_id = MAP_FRAME_ID;
+    mCurrentCamera.header.frame_id = mapFrame;
     mCurrentCamera.ns = CAMERA_NAMESPACE;
     mCurrentCamera.id=4;
     mCurrentCamera.type = visualization_msgs::Marker::LINE_LIST;
@@ -95,7 +94,7 @@ MapPublisher::MapPublisher(Map* pMap):mpMap(pMap), mbCameraUpdated(false)
     mCurrentCamera.color.a = 1.0;
 
     //Configure Reference MapPoints
-    mReferencePoints.header.frame_id = MAP_FRAME_ID;
+    mReferencePoints.header.frame_id = mapFrame;
     mReferencePoints.ns = POINTS_NAMESPACE;
     mReferencePoints.id=6;
     mReferencePoints.type = visualization_msgs::Marker::POINTS;
@@ -130,11 +129,11 @@ void MapPublisher::Refresh()
         vector<MapPoint*> vMapPoints = mpMap->GetAllMapPoints();
         vector<MapPoint*> vRefMapPoints = mpMap->GetReferenceMapPoints();
 
-        PublishMapPoints(vMapPoints, vRefMapPoints);   
+        PublishMapPoints(vMapPoints, vRefMapPoints);
         PublishKeyFrames(vKeyFrames);
 
         mpMap->ResetUpdated();
-    }    
+    }
 }
 
 void MapPublisher::PublishMapPoints(const vector<MapPoint*> &vpMPs, const vector<MapPoint*> &vpRefMPs)

@@ -49,10 +49,11 @@ class LocalMapping;
 class LoopClosing;
 
 class Tracking
-{  
+{
 
 public:
-    Tracking(ORBVocabulary* pVoc, FramePublisher* pFramePublisher, MapPublisher* pMapPublisher, Map* pMap, string strSettingPath);
+    Tracking(ORBVocabulary* pVoc, FramePublisher* pFramePublisher, MapPublisher* pMapPublisher, Map* pMap, string strSettingPath,
+             const std::string &mapFrame, const std::string &cameraFrame);
 
     enum eTrackingState{
         SYSTEM_NOT_READY=-1,
@@ -73,7 +74,7 @@ public:
     void ForceRelocalisation();
 
     eTrackingState mState;
-    eTrackingState mLastProcessedState;    
+    eTrackingState mLastProcessedState;
 
     // Current Frame
     Frame mCurrentFrame;
@@ -102,7 +103,7 @@ protected:
     bool TrackWithMotionModel();
 
     bool RelocalisationRequested();
-    bool Relocalisation();    
+    bool Relocalisation();
 
     void UpdateReference();
     void UpdateReferencePoints();
@@ -180,6 +181,10 @@ protected:
 
     // Transfor broadcaster (for visualization in rviz)
     tf::TransformBroadcaster mTfBr;
+
+    // Frame ids
+    std::string mMapFrame;
+    std::string mCameraFrame;
 };
 
 } //namespace ORB_SLAM

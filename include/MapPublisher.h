@@ -34,7 +34,7 @@ namespace ORB_SLAM
 class MapPublisher
 {
 public:
-    MapPublisher(Map* pMap);
+    MapPublisher(Map* pMap, const std::string &mapFrame);
 
     Map* mpMap;
 

@@ -130,6 +130,11 @@ int main(int argc, char **argv)
 
     ROS_INFO("Vocabulary loaded!");
 
+    //Grab parameters
+    ros::NodeHandle pn("~");
+    std::string mapFrame = pn.param("map_frame", std::string("/ORB_SLAM/World"));
+    std::string cameraFrame = pn.param("camera_frame", std::string("/ORB_SLAM/Camera"));
+
     //Create KeyFrame Database
     ORB_SLAM::KeyFrameDatabase Database(Vocabulary);
 
@@ -139,10 +144,10 @@ int main(int argc, char **argv)
     FramePub.SetMap(&World);
 
     //Create Map Publisher for Rviz
-    ORB_SLAM::MapPublisher MapPub(&World);
+    ORB_SLAM::MapPublisher MapPub(&World, mapFrame);
 
     //Initialize the Tracking Thread and launch
-    ORB_SLAM::Tracking Tracker(&Vocabulary, &FramePub, &MapPub, &World, strSettingsFile);
+    ORB_SLAM::Tracking Tracker(&Vocabulary, &FramePub, &MapPub, &World, strSettingsFile, mapFrame, cameraFrame);
     boost::thread trackingThread(&ORB_SLAM::Tracking::Run,&Tracker);
 
     Tracker.SetKeyFrameDatabase(&Database);
