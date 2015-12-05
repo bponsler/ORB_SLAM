@@ -75,7 +75,7 @@ cv::Mat FramePublisher::DrawFrame()
         mIm.copyTo(im);
 
         if(mState==Tracking::NOT_INITIALIZED)
-        {            
+        {
             vIniKeys = mvIniKeys;
         }
         else if(mState==Tracking::INITIALIZING)
@@ -108,7 +108,7 @@ cv::Mat FramePublisher::DrawFrame()
                 cv::line(im,vIniKeys[i].pt,vCurrentKeys[vMatches[i]].pt,
                         cv::Scalar(0,255,0));
             }
-        }        
+        }
     }
     else if(state==Tracking::WORKING) //TRACKING
     {
@@ -154,9 +154,13 @@ void FramePublisher::PublishFrame()
 
 void FramePublisher::DrawTextInfo(cv::Mat &im, int nState, cv::Mat &imText)
 {
+    // Resolve the full namespace of the topic to handle remapped topics
+    ros::NodeHandle nh;
+    std::string resolvedTopic = nh.resolveName("/camera/image_raw");
+
     stringstream s;
     if(nState==Tracking::NO_IMAGES_YET)
-        s << "WAITING FOR IMAGES. (Topic: /camera/image_raw)";
+        s << "WAITING FOR IMAGES. (Topic: " << resolvedTopic << ")";
     else if(nState==Tracking::NOT_INITIALIZED)
         s << " NOT INITIALIZED ";
     else if(nState==Tracking::INITIALIZING)
